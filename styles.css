@@ -887,3 +887,146 @@ body.theme-dark .nav-brand { border-right-color: rgba(255,255,255,.12); }
   .why-fragments .num { font-size: 12px; min-width: 36px; }
   .vision-foot { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   Mobile — phones (≤ 700px)
+   ============================================================ */
+@media (max-width: 700px) {
+  /* Tweaks/dev panel: hide on phones */
+  .twk-panel { display: none !important; }
+
+  /* Nav: tighter, never overflow */
+  .nav { top: 12px; }
+  .nav-inner { padding: 5px 5px 5px 12px; max-width: 94vw; }
+  .nav-link { padding: 6px 9px; font-size: 11px; }
+  .nav-brand { font-size: 11px; padding-right: 6px; gap: 6px; }
+  .nav-progress { margin-top: 8px; width: min(420px, 80vw); }
+
+  /* Common section padding */
+  .section { padding: 0 18px; }
+
+  /* Hero */
+  .hero { padding-top: 96px; padding-bottom: 40px; }
+  .hero-title { font-size: clamp(40px, 12vw, 64px); letter-spacing: -0.035em; margin-top: 24px; }
+  .hero-meta { gap: 16px; }
+  .hero-foot { margin-top: 36px; gap: 22px; }
+  .hero-sub { font-size: 15px !important; }
+  .hero-sub .serif { font-size: 15px !important; }
+  .hero-ctas .btn { padding: 11px 16px; font-size: 13px; gap: 8px; }
+  .hero-ctas .btn .arrow { width: 22px; height: 22px; }
+  .window-grid { gap: 8px; transform: rotate(-8deg) scale(1.2); }
+
+  /* Shift */
+  .shift { padding-top: 80px; padding-bottom: 60px; }
+  .shift-head { margin-bottom: 36px; }
+  .shift-col { padding: 24px 18px; min-height: auto; gap: 14px; }
+  .shift-grid { border-radius: 14px; }
+  .shift-foot { margin-top: 32px; font-size: 15px; }
+  .mini-stats b { font-size: 18px; }
+  .mini-stats span { font-size: 10px; }
+
+  /* Intro */
+  .intro { margin: 60px 12px 0; padding: 72px 18px; border-radius: 14px; }
+  .intro-title { font-size: clamp(54px, 16vw, 88px); }
+  .intro-sub { font-size: 18px; margin: 20px 0 48px; }
+  .pull-quote { margin-top: 56px; gap: 12px; }
+  .pull-quote .qm { font-size: 64px; }
+  .pull-quote p { font-size: clamp(28px, 7vw, 40px); }
+
+  /* How */
+  .how { padding-top: 80px; padding-bottom: 50px; }
+  .how-head { margin-bottom: 36px; }
+  .how-sticky { padding: 20px 0; gap: 24px; }
+  .how-canvas { gap: 18px; }
+  .how-step-meta .step-title { font-size: clamp(28px, 8vw, 44px); margin-bottom: 14px; }
+  .how-step-meta .step-blurb { font-size: 14px; }
+  .ui-card { padding: 16px; font-size: 12px; }
+  .rail-item { font-size: 12px; padding: 6px 10px; }
+  .rail-name { font-size: 13px; }
+
+  /* Why */
+  .why { padding: 80px 18px; }
+  .why h2 { font-size: clamp(40px, 13vw, 64px); margin: 18px 0 32px; }
+  .not-list { font-size: 17px; margin-bottom: 48px; gap: 6px; }
+  .why-lead { font-size: 17px; margin-bottom: 18px; }
+  .why-fragments li { font-size: 28px; gap: 10px; padding: 16px 0; }
+  .why-fragments .num { font-size: 11px; min-width: 28px; }
+
+  /* Community */
+  .community { padding-top: 80px; padding-bottom: 56px; }
+  .community-head { margin-bottom: 36px; }
+  .community-head h2 { font-size: clamp(34px, 10vw, 52px); }
+  .community-lead { font-size: 15px; }
+  .map-frame { padding: 16px; border-radius: 12px; }
+  .comm-item { grid-template-columns: 44px 1fr; gap: 12px; padding: 16px 0; }
+  .comm-item h4 { font-size: 18px; }
+  .comm-item p { font-size: 13px; }
+  .comm-item .comm-num { font-size: 20px; }
+
+  /* Cases */
+  .cases { padding-top: 80px; padding-bottom: 60px; }
+  .cases-head { margin-bottom: 32px; }
+  .cases-head h2 { font-size: clamp(34px, 10vw, 52px); }
+  .case-card { padding: 22px; min-height: 220px; gap: 12px; border-radius: 14px; }
+  .case-card h3 { font-size: clamp(22px, 6vw, 28px); }
+  .case-card p { font-size: 13.5px; }
+  .case-tag { font-size: 10px; padding: 5px 10px; }
+  .case-metric { font-size: 14px; padding-top: 12px; }
+
+  /* Insight */
+  .insight { margin: 60px 12px 0; padding: 72px 18px; border-radius: 14px; }
+  .insight h2 { font-size: clamp(32px, 10vw, 52px); margin-top: 18px; }
+  .insight-lead { font-size: 14.5px; margin-bottom: 36px; }
+  .insight-tile { padding: 16px; }
+  .bar-row { grid-template-columns: 90px 1fr 50px; gap: 10px; font-size: 11px; }
+  .insight-foot { font-size: 14px; }
+
+  /* Vision */
+  .vision { padding-top: 90px; padding-bottom: 80px; }
+  .vision h2 { font-size: clamp(44px, 13vw, 72px); margin: 16px 0 48px; }
+  .vision-foot p { font-size: 15px; }
+
+  /* Final */
+  .final { padding: 80px 16px 28px; border-radius: 14px 14px 0 0; }
+  .final-line { font-size: clamp(34px, 10vw, 54px); margin-bottom: 56px; }
+  .final-links { margin-bottom: 48px; }
+  .final-link { grid-template-columns: 28px 1fr 28px; gap: 14px; padding: 20px 0; }
+  .final-link .num { font-size: 12px; }
+  .final-link .lbl { font-size: clamp(20px, 6vw, 30px); letter-spacing: -0.02em; }
+  .final-link:hover { padding-left: 12px; }
+  .final-link .arr { font-size: 18px; }
+  .final-foot { font-size: 11px; gap: 12px; padding-top: 18px; }
+  .final-mark { font-size: 12px; }
+
+  /* Capabilities — inline grid 1fr 1fr → single column */
+  .capabilities-section { grid-template-columns: 1fr !important; gap: 32px !important; padding: 70px 18px !important; }
+  .capabilities-section img { max-width: 320px !important; margin: 0 auto; }
+
+  /* Showreel */
+  .showreel-section { padding: 56px 18px !important; }
+  .showreel-section > div:first-child { padding-left: 0 !important; margin-bottom: 18px !important; }
+
+  /* Shift statement (inline 80px padding) */
+  .shift-statement-section { padding: 60px 18px 70px !important; }
+  .shift-statement-box { padding: 20px 22px !important; font-size: clamp(18px, 5vw, 24px) !important; }
+
+  /* Overlay modals — tighter padding so they fit phones */
+  .modal-overlay { padding: 18px !important; }
+  .modal-overlay .modal-close { padding: 6px 14px !important; font-size: 11.5px !important; top: 10px !important; right: 10px !important; }
+
+  /* Info card image overlay */
+  .infocard-modal img { border-radius: 22px !important; }
+
+  /* Eyebrow */
+  .eyebrow { font-size: 10px; gap: 8px; }
+  .eyebrow .eyebrow-num { font-size: 11px; }
+}
+
+/* Extra-narrow phones (≤ 380px) */
+@media (max-width: 380px) {
+  .nav-link { font-size: 10.5px; padding: 5px 7px; }
+  .nav-brand { font-size: 10.5px; }
+  .hero-title { font-size: clamp(36px, 13vw, 52px); }
+  .hero-ctas .btn { padding: 10px 14px; font-size: 12px; }
+  .section { padding: 0 14px; }
+}

@@ -148,6 +148,27 @@ const VideoShowreel = () => {
     window.addEventListener('mouseup', onUp);
   };
 
+  const onTrackTouchStart = (e) => {
+    e.stopPropagation();
+    dragging.current = true;
+    const t = e.touches[0];
+    if (t) applySeek(t.clientX);
+    const onMove = (ev) => {
+      if (!dragging.current) return;
+      const t2 = ev.touches[0];
+      if (t2) applySeek(t2.clientX);
+    };
+    const onEnd = () => {
+      dragging.current = false;
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
+    };
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
+  };
+
   const fmt = (s) => {
     if (!s || isNaN(s)) return '00:00';
     const m = Math.floor(s / 60), sec = Math.floor(s % 60);
@@ -157,7 +178,7 @@ const VideoShowreel = () => {
   return (
     <>
       {/* ── inline muted preview ── */}
-      <section style={{ padding: '80px 48px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <section className="showreel-section" style={{ padding: '80px 48px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: '12px',
           marginBottom: '24px', alignSelf: 'flex-start',
@@ -181,6 +202,7 @@ const VideoShowreel = () => {
       {/* ── slide-down lightbox ── */}
       {open && (
         <div
+          className="modal-overlay"
           onClick={(e) => { if (e.target === e.currentTarget) closeOverlay(); }}
           style={{
             position: 'fixed', inset: 0, zIndex: 9999,
@@ -202,6 +224,7 @@ const VideoShowreel = () => {
 
             {/* close */}
             <button
+              className="modal-close"
               onClick={closeOverlay}
               onMouseEnter={() => setCloseHover(true)}
               onMouseLeave={() => setCloseHover(false)}
@@ -252,6 +275,7 @@ const VideoShowreel = () => {
               <div
                 ref={trackRef}
                 onMouseDown={onTrackMouseDown}
+                onTouchStart={onTrackTouchStart}
                 style={{
                   flex: 1, height: '4px',
                   background: 'rgba(255,255,255,0.18)',
@@ -423,12 +447,88 @@ const SHIFT_PANELS = [
   },
 ];
 
+const useViewportProgress = () => {
+  const ref = useRef(null);
+  const [ratio, setRatio] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const compute = () => {
+      const rect = el.getBoundingClientRect();
+      const range = window.innerHeight + rect.height;
+      const pos = window.innerHeight - rect.top;
+      setRatio(Math.max(0, Math.min(1, pos / range)));
+    };
+    compute();
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', compute);
+    return () => {
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+    };
+  }, []);
+  return [ref, ratio];
+};
+
+const MobileStatementPanel = () => {
+  const [ref, ratio] = useViewportProgress();
+  const showConstraint = ratio > 0.5;
+  return (
+    <div ref={ref} style={{ padding: '60px 18px' }}>
+      <p style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.4, marginBottom: '20px' }}>The result</p>
+      <div className="statement-swap" style={{ position: 'relative', overflow: 'hidden', minHeight: '190px', width: '100%' }}>
+        <h2 className={`statement-swap-line ${showConstraint ? 'out' : 'in'}`} style={{ fontWeight: 400, fontSize: 'clamp(28px, 8vw, 42px)', lineHeight: 1.1, margin: 0 }}>
+          Barriers that keep<br /><i className="serif">small businesses</i> out.
+        </h2>
+        <h2 className={`statement-swap-line ${showConstraint ? 'in' : 'out-below'}`} style={{ fontWeight: 400, fontSize: 'clamp(28px, 8vw, 42px)', lineHeight: 1.1, margin: 0 }}>
+          Not by choice but, <span className="serif mint-text">by constraint.</span>
+        </h2>
+      </div>
+    </div>
+  );
+};
+
+const MobileReasonsPanel = () => {
+  const [ref, ratio] = useViewportProgress();
+  const words = ['costly', 'long term', 'risky'];
+  const colors = ['#79F1AA', '#6DDBEB', '#2A71F5'];
+  const thresholds = [0.40, 0.55];
+  const _wi = thresholds.findIndex(t => ratio < t);
+  const wordIdx = _wi === -1 ? words.length - 1 : _wi;
+  return (
+    <div ref={ref} style={{ padding: '40px 18px 60px' }}>
+      <p style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.4, marginBottom: '20px' }}>Why they stay online</p>
+      <h2 style={{ fontWeight: 400, fontSize: 'clamp(28px, 8vw, 42px)', lineHeight: 1.15, margin: 0 }}>
+        They live online<br />because physical<br />retail is...
+      </h2>
+      <div className="statement-swap" style={{ position: 'relative', overflow: 'hidden', minHeight: '72px', width: '100%', marginTop: '14px' }}>
+        {words.map((word, i) => (
+          <h2 key={word} className={`statement-swap-line ${i === wordIdx ? 'in' : i < wordIdx ? 'out' : 'out-below'}`} style={{ fontWeight: 400, fontSize: 'clamp(28px, 8vw, 42px)', lineHeight: 1.1, margin: 0, color: colors[i], fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
+            {word}
+          </h2>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Shift = () => {
   const outerRef = useRef(null);
   const trackRef = useRef(null);
   const [ratio, setRatio] = useState(0);
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 700px)').matches
+  );
 
   useEffect(() => {
+    const mq = window.matchMedia('(max-width: 700px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const outer = outerRef.current;
     const track = trackRef.current;
     if (!outer || !track) return;
@@ -446,7 +546,48 @@ const Shift = () => {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section id="shift" data-screen-label="02 The Shift" style={{ position: 'relative' }}>
+        <div style={{ padding: '80px 18px 40px' }}>
+          <Eyebrow num="02">The shift</Eyebrow>
+          <h2 style={{ fontWeight: 400, marginTop: '20px', lineHeight: 0.98, fontSize: 'clamp(34px, 9vw, 54px)' }}>
+            Anyone can launch <i className="serif">online</i>.<br />
+            Almost nobody can launch <span className="mint-underline" style={{ fontWeight: 400 }}>physically</span>.
+          </h2>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '56px', padding: '0 18px 80px' }}>
+          {/* Digital */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', textAlign: 'center' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.4, margin: 0 }}>Digital</p>
+            <div style={{ width: '100%', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '28px', background: 'rgba(0,0,0,0.01)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="online grid.svg" alt="Online grid" style={{ width: '100%', maxWidth: '240px', height: 'auto', display: 'block' }} />
+            </div>
+            <p style={{ fontSize: '15px', lineHeight: 1.55, opacity: 0.6, margin: 0 }}>Frictionless process to entering digital space.</p>
+          </div>
+
+          {/* Physical */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', textAlign: 'center' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.4, margin: 0 }}>Physical</p>
+            <div style={{ width: '100%', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', padding: '28px', background: 'rgba(0,0,0,0.01)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="user blob.svg" alt="User blob" style={{ width: '100%', maxWidth: '240px', height: 'auto', display: 'block' }} />
+            </div>
+            <p style={{ fontSize: '15px', lineHeight: 1.55, opacity: 0.6, margin: 0 }}>Constant change and uncertainty launching into physical spaces.</p>
+          </div>
+
+        </div>
+
+        {/* Statement — scroll-driven morph (vertical) */}
+        <MobileStatementPanel />
+
+        {/* Reasons — scroll-driven word cycle (vertical) */}
+        <MobileReasonsPanel />
+      </section>
+    );
+  }
 
   return (
     <section id="shift" data-screen-label="02 The Shift" style={{ position: 'relative' }}>
@@ -557,7 +698,7 @@ const Shift = () => {
    02b · SHIFT STATEMENT — staggered text boxes slide in
 ========================================================= */
 const ShiftStatement = () => (
-  <section style={{ padding: '80px 80px 100px', background: 'var(--bg)' }}>
+  <section className="shift-statement-section" style={{ padding: '80px 80px 100px', background: 'var(--bg)' }}>
     <div style={{ maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {[
         { text: 'That tension', delay: '0s' },
@@ -566,7 +707,7 @@ const ShiftStatement = () => (
       ].map(({ text, label, delay, mint }) => (
         <div
           key={delay}
-          className="reveal"
+          className="reveal shift-statement-box"
           style={{
             transitionDelay: delay,
             padding: '26px 34px',
@@ -614,6 +755,7 @@ const Capabilities = () => {
   return (
     <section
       ref={sectionRef}
+      className="capabilities-section"
       style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr',
         alignItems: 'center', gap: '60px',
@@ -1381,6 +1523,26 @@ const Cases = () => {
     window.addEventListener('mouseup', onUp);
   };
 
+  const onSliderTouchStart = (e) => {
+    dragging.current = true;
+    const t = e.touches[0];
+    if (t) applyDrag(t.clientX);
+    const onMove = (ev) => {
+      if (!dragging.current) return;
+      const t2 = ev.touches[0];
+      if (t2) applyDrag(t2.clientX);
+    };
+    const onEnd = () => {
+      dragging.current = false;
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('touchcancel', onEnd);
+    };
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
+  };
+
   return (
     <>
       <section id="cases" className="section cases" data-screen-label="07 Use cases">
@@ -1414,6 +1576,7 @@ const Cases = () => {
 
       {openCase &&
       <div
+        className="modal-overlay"
         onClick={(e) => { if (e.target === e.currentTarget) closeCard(); }}
         style={{
           position: 'fixed', inset: 0, zIndex: 9999,
@@ -1431,6 +1594,7 @@ const Cases = () => {
           transition: 'transform 0.42s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease'
         }}>
             <button
+            className="modal-close"
             onClick={closeCard}
             onMouseEnter={() => setCloseHover(true)}
             onMouseLeave={() => setCloseHover(false)}
@@ -1451,13 +1615,15 @@ const Cases = () => {
             <div
             ref={containerRef}
             onMouseDown={onSliderMouseDown}
+            onTouchStart={onSliderTouchStart}
             style={{
               position: 'relative', width: '100%',
               aspectRatio: '3 / 2',
               maxHeight: 'calc(88vh)',
               userSelect: 'none', cursor: 'ew-resize',
               lineHeight: 0, background: '#0a0a0a',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              touchAction: 'none'
             }}>
               <img
               src={openCase.slider.rightImg}
@@ -1655,6 +1821,7 @@ const InfoCard = () => {
 
   return (
     <div
+      className="modal-overlay infocard-modal"
       onClick={(e) => {if (e.target === e.currentTarget) closeCard();}}
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
@@ -1676,6 +1843,7 @@ const InfoCard = () => {
       }}>
 
         <button
+          className="modal-close"
           onClick={closeCard}
           onMouseEnter={() => setCloseHover(true)}
           onMouseLeave={() => setCloseHover(false)}
